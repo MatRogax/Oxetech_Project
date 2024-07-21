@@ -1,41 +1,47 @@
 import { Container } from "react-bootstrap";
 import PokemonItem from "../../components/pokemonitem";
-type PokemonDataItem = {
-    name : string,
-    src : string,
-};
-const  pokemonData:PokemonDataItem[] = [
-    {
-        name:"bulbasaur",
-        src:"https://raw.githubusercontent.com/pokeApi/sprites/master/sprites/pokemon/other/dream-world/1.svg"
-    },
-    {
-        name:"bulbasaur",
-        src:"https://raw.githubusercontent.com/pokeApi/sprites/master/sprites/pokemon/other/dream-world/1.svg"
-    },
-    {
-        name:"bulbasaur",
-        src:"https://raw.githubusercontent.com/pokeApi/sprites/master/sprites/pokemon/other/dream-world/1.svg"
-    },
-    {
-        name:"bulbasaur",
-        src:"https://raw.githubusercontent.com/pokeApi/sprites/master/sprites/pokemon/other/dream-world/1.svg"
-    },
-]
-const Home = () => {
-    return (
-        <Container style={{display:"flex",gap:10,marginTop:10}}>
-            {pokemonData.map((item:PokemonDataItem) =>{
-                return(
-                    <PokemonItem 
-                        src={item.src} 
-                        name={item.name}>
-                    </PokemonItem>
+import { useEffect, useState } from "react";
+import api from "../../services/api";
 
-                );
-            })}
-        </Container>
-    )
-}
+type PokemonDataItem = {
+  name: string;
+  src: string;
+};
+
+const Home = () => {
+  interface IPokemonData {
+    count: number;
+    next: string;
+    previous: string;
+    results: PokemonDataItem[];
+  }
+  const [pokemonData, setPokemonData] = useState<PokemonDataItem[]>([]);
+  useEffect(() => {
+    api.get("/pokemon?limit=20&offset=").then((response) => {
+      console.log(response);
+      const data: IPokemonData = response.data;
+      const results = data?.results.map((item) => ({
+        name: item.name,
+        src: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg",
+      }));
+      setPokemonData(results);
+    });
+  }, []);
+  return (
+    <Container
+      style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 }}
+    >
+      {pokemonData.map((item: PokemonDataItem) => {
+        return (
+          <PokemonItem
+            key={item.name}
+            src={item.src}
+            name={item.name}
+          ></PokemonItem>
+        );
+      })}
+    </Container>
+  );
+};
 
 export default Home;
